@@ -21,8 +21,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 app = {
-
-  server: 'https://api.parse.com/1/classes/messages/',
+  server: 'http://127.0.0.1:3000/',  
+  // server: 'https://api.parse.com/1/classes/messages/',
 
   init: function() {
     // Get username
