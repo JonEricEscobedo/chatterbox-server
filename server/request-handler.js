@@ -24,16 +24,15 @@ var requestHandler = function(request, response) {
 
   if (request.url !== '/classes/messages') {
     var statusCode = 404;
-  } else if (request.method === 'GET') {
+  } else if (request.method === 'GET' || request.method === 'OPTIONS') {
     var statusCode = 200;
-  } else if (request.method === 'POST' || request.method === 'OPTIONS') {
+  } else if (request.method === 'POST') {
     var statusCode = 201;
     
     var rawStr = '';
 
-    request.addListener('data', (chunk) => {
-      rawStr += chunk;
-      var parseData = JSON.parse(rawStr);
+    request.addListener('data', (data) => {
+      var parseData = JSON.parse(data);
       responseBody.results.push(parseData);
     });
   }
