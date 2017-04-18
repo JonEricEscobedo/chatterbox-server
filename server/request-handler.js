@@ -13,66 +13,106 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 
 var requestHandler = function(request, response) {
-  if (request.method === 'GET'){
-    var results = [];
-    response.statusCode = 200;
+  var defaultCorsHeaders = {
+    'access-control-allow-origin': '*',
+    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'access-control-allow-headers': 'content-type, accept',
+    'access-control-max-age': 10 // Seconds.
+  };
+  var headers = defaultCorsHeaders;  
+  headers['Content-Type'] = 'text/plain';
+
+  var responseBody = {results: []};
 
 
-    request.on('data', function(data) {
-      results.push(data);
-    }).on('end', function() {
-      // body = Buffer.concat(body).toString();
-      // BEGINNING OF NEW STUFF
-
-      response.on('error', function(err) {
-        console.error(err);
-      });
-
-      response.statusCode = 200;
-      response.setHeader('Content-Type', 'application/json');
-
-      var responseBody = {
-        headers: request.headers,
-        method: request.method,
-        url: request.url,
-        results: results
-      };
-
-      response.write(JSON.stringify(responseBody));
-      response.end();
-    });  
+  if (request.url !== '/classes/messages'){
+    var statusCode = 404;
+  } 
+  else if (request.method === 'GET') {
+    var statusCode = 200;
   }
-
-  if (request.method === 'POST'){
-    var results = [];
-
-    request.on('error', function(err) {
-      console.error(err);
-    }).on('data', function(data) {
-      results.push(data);
+  else if (request.method === 'POST') {
+    var statusCode = 201;
+    
+    request.addListener('data', function(data) {
       console.log(data);
-    }).on('end', function() {
-      // body = Buffer.concat(body).toString();
-      // BEGINNING OF NEW STUFF
+      responseBody.results.push(data);
+    })
 
-      response.on('error', function(err) {
-        console.error(err);
-      });
+    // request.addListener('end', function() {
+    //   responseBody.results = JSON.stringify(responseBody.results);    
+    // })
 
-      response.statusCode = 201;
-      response.setHeader('Content-Type', 'application/json');
+    // console.log('request', request);
+    console.log('responseBody.results', responseBody.results);
+    // console.log('ADD LISTENTER', JSON.stringify(request._postData));
+    console.log('typeof', typeof responseBody.results);
 
-      var responseBody = {
-        headers: request.headers,
-        method: request.method,
-        url: request.url,
-        results: results
-      };
-
-      response.write(JSON.stringify(responseBody));
-      response.end();
-    });  
+    // var responseBody = request._postData;
   }
+
+    response.writeHead(statusCode, headers);
+
+  // if (request.method === 'GET'){
+  //   var results = [];
+  //   response.statusCode = 200;
+
+
+    // request.on('data', function(data) {
+    //   results.push(data);
+    // }).on('end', function() {
+    //   body = Buffer.concat(body).toString();
+  //     // BEGINNING OF NEW STUFF
+
+  //     response.on('error', function(err) {
+  //       console.error(err);
+  //     });
+
+  //     response.statusCode = 200;
+  //     response.setHeader('Content-Type', 'application/json');
+
+  //     var responseBody = {
+  //       headers: request.headers,
+  //       method: request.method,
+  //       url: request.url,
+  //       results: results
+  //     };
+
+  //     response.write(JSON.stringify(responseBody));
+  //     response.end();
+  //   });  
+  // }
+
+  // if (request.method === 'POST'){
+  //   var results = [];
+
+  //   request.on('error', function(err) {
+  //     console.error(err);
+  //   }).on('data', function(data) {
+  //     results.push(data);
+  //     console.log(data);
+  //   }).on('end', function() {
+  //     // body = Buffer.concat(body).toString();
+  //     // BEGINNING OF NEW STUFF
+
+  //     response.on('error', function(err) {
+  //       console.error(err);
+  //     });
+
+  //     response.statusCode = 201;
+  //     response.setHeader('Content-Type', 'application/json');
+
+  //     var responseBody = {
+  //       headers: request.headers,
+  //       method: request.method,
+  //       url: request.url,
+  //       results: results
+  //     };
+
+  //     response.write(JSON.stringify(responseBody));
+  //     response.end();
+  //   });  
+  // }
 
 
 
@@ -117,14 +157,14 @@ var requestHandler = function(request, response) {
 
   // var headers = defaultCorsHeaders;
 
-  // // Tell the client we are sending them plain text.
-  // //
-  // // You will need to change this if you are sending something
-  // // other than plain text, like JSON or HTML.
+  // // // Tell the client we are sending them plain text.
+  // // //
+  // // // You will need to change this if you are sending something
+  // // // other than plain text, like JSON or HTML.
   // headers['Content-Type'] = 'text/plain';
 
-  // // .writeHead() writes to the request line and headers of the response,
-  // // which includes the status and all headers.
+  // // // .writeHead() writes to the request line and headers of the response,
+  // // // which includes the status and all headers.
   // var writeHead = response.writeHead(statusCode, headers);
 
   // // Make sure to always call response.end() - Node may not send
@@ -134,7 +174,8 @@ var requestHandler = function(request, response) {
   // //
   // // Calling .end "flushes" the response's internal buffer, forcing
   // // node to actually send all the data over to the client.
-  // response.end('Hello World!');
+  response.end(JSON.stringify(responseBody));
+  // response.end();
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
