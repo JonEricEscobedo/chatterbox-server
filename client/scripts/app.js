@@ -62,14 +62,13 @@ var app = {
       url: app.server,
       type: 'GET',
       // data: {where:JSON.stringify({roomname: roomName}),limit: 1000, order: '-createdAt'},
-      // data: {order: '-createdAt'},
+      dataType: 'JSON',
       contentType: 'application/json',
 
       success: function (data) {       
         console.log(data);
         console.log('data', data);
-        console.log('data results', JSON.parse(data).results);
-        var results = JSON.parse(data).results;
+        var results = data.results;
         
         var mostRecentMesgID = results[results.length-1].objectID;
         if(mostRecentMesgID !== app.lastMesgID){

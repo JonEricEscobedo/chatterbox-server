@@ -73,5 +73,37 @@ describe('server', function() {
     });
   });
 
+  it('*NEW* should continue to accept POST requests to /classes/messages', function(done) {
+    var requestParams = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jeff',
+        message: 'Hack Reactor rules!'}
+    };
+
+    request(requestParams, function(error, response, body) {
+      expect(response.statusCode).to.equal(201);
+      done();
+    });
+  });
+
+  it('*NEW* should still respond with older messages that were previously posted', function(done) {
+    var requestParams = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jono',
+        message: 'Do my bidding!'}
+    };
+
+    request(requestParams, function(error, response, body) {
+      // Now if we request the log, that message we posted should be there:
+      request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+        var messages = JSON.parse(body).results;
+        expect(messages[2].username).to.equal('Jeff');
+        expect(messages[2].message).to.equal('Hack Reactor rules!');
+        done();
+      });
+    });
+  });
 
 });

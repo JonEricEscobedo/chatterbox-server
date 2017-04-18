@@ -116,4 +116,56 @@ describe('Node Server Request Listener Function', function() {
       });
   });
 
+  it('*NEW* Should contain newest messages that were just posted', function() {
+    var stubMsg = {
+      username: 'Joneric',
+      message: 'Lookout!'
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(201);
+
+      // Now if we request the log for that room the message we posted should be there:
+    req = new stubs.request('/classes/messages', 'GET');
+    res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    var messages = JSON.parse(res._data).results;
+    expect(messages.length).to.be.above(0);
+    expect(messages[2].username).to.equal('Joneric');
+    expect(messages[2].message).to.equal('Lookout!');
+    expect(res._ended).to.equal(true);
+  });
+
+  it('*NEW* Should still contain old messages after new messages have been posted', function() {
+    var stubMsg = {
+      username: 'Alan',
+      message: 'MacbookPro!'
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(201);
+
+      // Now if we request the log for that room the message we posted should be there:
+    req = new stubs.request('/classes/messages', 'GET');
+    res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    var messages = JSON.parse(res._data).results;
+    expect(messages.length).to.be.above(0);
+    expect(messages[1].username).to.equal('Jono');
+    expect(messages[1].message).to.equal('Do my bidding!');
+    expect(res._ended).to.equal(true);
+  });
+
 });
